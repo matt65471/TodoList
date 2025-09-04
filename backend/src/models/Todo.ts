@@ -1,17 +1,21 @@
-import mongoose, { Document, Schema } from "mongoose";
+import mongoose, { Schema, Document, Types } from "mongoose";
 
-export interface IToDo extends Document {
+export interface IToDoBase {
   nameTask: string;
   importanceValue?: number;
   taskGroup?: string;
   dueDate?: Date;
 }
 
-const todoSchema: Schema<IToDo> = new Schema({
-  nameTask: { type: String, required: true, trim: true },
-  importanceValue: { type: Number },
-  taskGroup: { type: String },
-  dueDate: { type: Date }
-});
+export interface IToDoDoc extends IToDoBase, Document {
+  _id: Types.ObjectId;
+}
 
-export const ToDo = mongoose.model<IToDo>("IndividualTask", todoSchema);
+const todoSchema = new Schema<IToDoDoc>({
+  nameTask: { type: String, required: true, trim: true },
+  importanceValue: Number,
+  taskGroup: String,
+  dueDate: Date,
+}, { timestamps: true });
+
+export const ToDo = mongoose.model<IToDoDoc>("IndividualTask", todoSchema);
