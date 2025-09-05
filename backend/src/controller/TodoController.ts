@@ -110,7 +110,7 @@ export async function updateToDo(req: Request, res: Response): Promise<void>{
 // Delete an existing ToDo
 export async function deleteToDo(req: Request, res: Response): Promise<void>{
   try{
-    const id = req.params;
+    const {id} = req.params;
     if (!Types.ObjectId.isValid(id)) {
       res.status(400).json({ success: false, message: "Invalid course id" });
       return;

@@ -7,6 +7,6 @@ export async function connect(uri: string): Promise<void> {
     console.log("✅ Mongo connected");
   } catch (err) {
     console.error("❌ Mongo connection error:", err);
-    process.exit(1);
+    process.exit(1); // now recognized by TS
   }
 }
