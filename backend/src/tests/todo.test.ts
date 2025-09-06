@@ -25,11 +25,15 @@ describe("ToDo tests", () => {
 	});
 
     it("should retrieve all ToDo tasks", async () => {
-		const res = await request(app).get("/api/todos");
-		expect(res.statusCode).toBe(200);
-		expect(Array.isArray(res.body)).toBe(true);
-		expect(res.body.length).toBeGreaterThan(0);
-	});
+        const res = await request(app).get("/api/todos");
+        expect(res.statusCode).toBe(200);
+        expect(Array.isArray(res.body)).toBe(true);
+        expect(res.body.length).toBeGreaterThan(0);
+        expect(res.body[0]).toHaveProperty("nameTask", "Test Task");
+        //expect(res.body[1]).toHaveProperty("importanceValue", 5);
+        expect(res.body[2]).toHaveProperty("taskGroup", "Test Group");
 
+    });
 
+    
 })
