@@ -3,6 +3,7 @@ import {ToDo} from "../models/Todo"
 import {Types} from "mongoose"
 
 // Gets all the ToDos
+// ToDo: Add filter for 
 export async function listToDos(req: Request, res: Response): Promise<void> {
   try {
     const filters = req.query;
