@@ -25,6 +25,7 @@ describe("ToDo tests", () => {
 
     let toDoID1: string;
     let toDoID2: string;
+    let toDoID3: string
 
     beforeEach(async () => {
 		const toDo1 = (await ToDo.create(
@@ -66,6 +67,94 @@ describe("ToDo tests", () => {
         );
     })
 
+    it("it should retrieve ToDo Task by id", async () =>{
+        const res = await request(app).get(`/api/todos/${toDoID1}`);
+        expect(res.status).toBe(200)
 
-    
+        expect(res.body).toEqual(
+            expect.objectContaining({
+                data: expect.objectContaining({
+                nameTask: 'Test Task',
+                importanceValue: 5,
+                taskGroup: 'Test Group',
+                }),
+            })
+        );
+    })
+
+    it('it should create a new ToDo task', async () => {
+        const payload = {
+            nameTask: 'Test Task 3',
+            importanceValue: 15,     // adjust if your schema restricts range (e.g. 1–10)
+            taskGroup: 'Test Group 3',
+            dueDate: '2024-02-20',   // strings are safest; Dates will be serialized anyway
+        };
+
+        const res = await request(app)
+            .post('/api/todos')
+            .send(payload)
+            .set('Content-Type', 'application/json')
+            .expect(201)
+            .expect('Content-Type', /json/);
+        
+        
+        
+        expect(res.status).toBe(201)
+
+        toDoID3 = res.body.id;
+
+        const getRes = await request(app).get(`/api/todos/${toDoID3}`)
+
+        expect(getRes.body).toEqual(
+            expect.objectContaining({
+                data:expect.objectContaining({
+                    nameTask: 'Test Task 3',
+                    importanceValue: 15,
+                    taskGroup: 'Test Group 3'
+                }),
+            })
+        )
+    })
+
+    it('it should update the ToDo task', async () =>{
+
+        const payload = {
+            nameTask: "Test Task Update",
+            importanceValue: 2
+        }
+
+        const res = await request(app).patch(`/api/todos/${toDoID2}`).send(payload).expect(200);
+
+        expect(res.body).toEqual(
+            expect.objectContaining({
+                data: expect.objectContaining({
+                    nameTask: 'Test Task Update',
+                    importanceValue: 2,
+                    taskGroup: 'Test Group 2',
+                }),
+            })
+        )
+    })
+
+    it("it should delete the ToDo task", async () => {
+        const res = await request(app).delete(`/api/todos/${toDoID2}`)
+
+        expect(res.status).toEqual(200)
+
+        expect(res.body).toEqual(
+            expect.objectContaining({
+                message: `${toDoID2} todo has been deleted`
+            })
+        )
+
+        const getRes = await request(app).get(`/api/todos/${toDoID2}`)
+        expect(getRes.status).toEqual(404)
+        expect(getRes.body).toEqual(
+            expect.objectContaining({
+                success: false,
+                message:"Task not found"
+            })
+        )
+    })
+
 })

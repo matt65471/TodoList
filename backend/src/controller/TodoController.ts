@@ -19,7 +19,7 @@ export async function getTodoById(req: Request, res: Response): Promise<void> {
   try {
     const { id } = req.params;
 
-    // 1) Validate ObjectId (skip this if you're using string/UUID ids)
+    // 1) Validate ObjectId
     if (!Types.ObjectId.isValid(id)) {
       res.status(400).json({ success: false, message: "Invalid id format" });
       return;
@@ -65,7 +65,8 @@ export async function createToDo(req: Request, res: Response): Promise<void>{
     });
     res.status(201).json({
       success: true,
-      message: `Created todo with id ${created._id}`
+      message: `Created todo with id`,
+      id: `${created._id}`
     })
   }
   catch(error){
@@ -83,7 +84,7 @@ export async function updateToDo(req: Request, res: Response): Promise<void>{
     const updates = req.body;
 
     if (!Types.ObjectId.isValid(id)) {
-      res.status(400).json({ success: false, message: "Invalid course id" });
+      res.status(400).json({ success: false, message: "Invalid todo id" });
       return;
     }
 
@@ -113,19 +114,19 @@ export async function deleteToDo(req: Request, res: Response): Promise<void>{
   try{
     const {id} = req.params;
     if (!Types.ObjectId.isValid(id)) {
-      res.status(400).json({ success: false, message: "Invalid course id" });
+      res.status(400).json({ success: false, message: "Invalid todo id" });
       return;
     }
-    const updated = await ToDo.findByIdAndDelete(id)
-    if (!updated){
+    const deleted = await ToDo.findByIdAndDelete(id)
+    if (!deleted){
       res.status(404).json({success: false, mesage: "Task not found while deleting"});
     }
-    res.status(200).json({success: true, data: updated})
+    res.status(200).json({success: true, message: `${id} todo has been deleted`})
   }
   catch(Error){
     res.status(500).json({
       success: false,
-      message: `Failed updating todo with ${req.params}`
+      message: `Failed updating todo with id ${req.params}`
     })
   }
 }

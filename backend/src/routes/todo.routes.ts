@@ -15,7 +15,7 @@ router.post("/", createToDo);      // create
 
 router.get("/:id", getTodoById);   // read
 
-router.patch("/:id", updateToDo);  // partial update (use PUT for full replace)
+router.patch("/:id", updateToDo);  // update
 
 router.delete("/:id", deleteToDo); // delete
 
