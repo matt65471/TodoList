@@ -1,7 +1,5 @@
 // jest.config.ts
-import type { Config } from "jest";
-
-const config: Config = {
+module.exports = {
   preset: "ts-jest/presets/default-esm",
   testEnvironment: "node",
   extensionsToTreatAsEsm: [".ts"],
@@ -13,4 +11,3 @@ const config: Config = {
   collectCoverageFrom: ["src/**/*.{ts,tsx}", "!src/server.ts"],
   verbose: true
 };
-export default config;

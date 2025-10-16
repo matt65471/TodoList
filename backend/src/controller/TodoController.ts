@@ -1,5 +1,5 @@
 import {Request, Response} from "express";
-import {ToDo} from "../models/Todo"
+import {ToDo} from "../models/Todo.js"
 import {Types} from "mongoose"
 
 // Gets all the ToDos
@@ -19,22 +19,18 @@ export async function getTodoById(req: Request, res: Response): Promise<void> {
   try {
     const { id } = req.params;
 
-    // 1) Validate ObjectId
     if (!Types.ObjectId.isValid(id)) {
       res.status(400).json({ success: false, message: "Invalid id format" });
       return;
     }
 
-    // 2) Query
-    const todo = await ToDo.findById(id).lean(); // .lean() returns plain objects (faster)
+    const todo = await ToDo.findById(id).lean();
 
-    // 3) Not found
     if (!todo) {
       res.status(404).json({ success: false, message: "Task not found" });
       return;
     }
 
-    // 4) Success — return the document
     res.status(200).json({
       success: true,
       data: todo,

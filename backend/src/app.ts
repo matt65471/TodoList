@@ -1,8 +1,16 @@
 // app.ts
 import express, { NextFunction, Request, Response } from "express";
-import routes from "./routes"; // ← routes/index.ts
+import cors from "cors";
+import routes from "./routes/index.js"; // ← routes/index.ts
+import { env } from "./config/env.js";
 
 const app = express();
+
+// Enable CORS
+app.use(cors({
+  origin: env.corsOrigin,
+  credentials: true,
+}));
 
 // Parse JSON bodies
 app.use(express.json());

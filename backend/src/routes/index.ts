@@ -1,6 +1,6 @@
 // routes/index.ts
 import { Router } from "express";
-import todoRouter from "./todo.routes"; // adjust path/name if yours differs
+import todoRouter from "./todo.routes.js"; // adjust path/name if yours differs
 
 const router = Router();
 

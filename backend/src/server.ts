@@ -1,7 +1,7 @@
 // server.ts
 import "dotenv/config";           // load .env (MONGO_URI, PORT)
-import app from "./app";
-import { connectDB } from "./config/db"; // your connect(uri) helper
+import app from "./app.js";
+import { connectDB } from "./config/db.js"; // your connect(uri) helper
 
 const PORT = Number(process.env.PORT ?? 4000);
 
