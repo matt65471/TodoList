@@ -1,4 +1,4 @@
-# 📝 Modern Todo List Application
+# 📝 Mental Health Todo List Application
 
 A full-stack To-Do list application built with React, TypeScript, Node.js, Express, and MongoDB.
 I designed this project to create a simple, calming To-Do experience that reduces overwhelm rather than adds to it. With so many responsibilities in daily life, traditional task lists can sometimes feel daunting. My goal was to design a To-Do app that brings clarity and perspective—helping users feel that their tasks are manageable, so they can spend more time taking action and less time feeling stressed!
@@ -180,8 +180,11 @@ npm run build
 - ✅ **Error Handling**: Comprehensive error management
 - ✅ **Scalable Structure**: Easy to extend and maintain
 
-
-
+## Future Features
+- [ ] Graphs to show how busy your week/month is
+- [ ] A break section to just chill from your To-Do list and the stressful world out there.
+- [ ] Stress tracker where user can log current stress and how much stress a certain task causes them
+- [ ] Maybe a machine learning model that learns which tasks are the most stressful and how much time you should spend on them, automatically adding them to your daily tasks! Also maybe tracks how well you do on tasks to get a sense of what you are doing. (this will take some time)
 
 
 *Built with ❤️, you can do it!*
