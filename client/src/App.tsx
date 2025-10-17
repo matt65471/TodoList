@@ -10,6 +10,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showForm, setShowForm] = useState(false);
 
   // Fetch todos on mount
   useEffect(() => {
@@ -37,6 +38,8 @@ function App() {
       await todoApi.createTodo(newTodo);
       // Refresh the list after creating
       await fetchTodos();
+      // Hide the form after successful creation
+      setShowForm(false);
     } catch (err) {
       setError('Failed to create task. Please try again.');
       console.error('Error creating todo:', err);
@@ -63,9 +66,8 @@ function App() {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-5xl font-bold text-gray-900 mb-2">
-            Todo List
+            Matthew's Todo List
           </h1>
-          <p className="text-gray-600">Organize your tasks efficiently</p>
         </div>
 
         {/* Error Message */}
@@ -83,8 +85,24 @@ function App() {
           </div>
         )}
 
-        {/* Todo Form */}
-        <TodoForm onSubmit={handleCreateTodo} isLoading={isCreating} />
+        {/* Todo Form Modal - Only show when showForm is true */}
+        {showForm && (
+          <div 
+            className="fixed inset-0 bg-gray-400/50 flex items-center justify-center z-50 p-4"
+            onClick={() => setShowForm(false)}
+          >
+            <div 
+              className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <TodoForm 
+                onSubmit={handleCreateTodo} 
+                isLoading={isCreating}
+                onCancel={() => setShowForm(false)}
+              />
+            </div>
+          </div>
+        )}
 
         {/* Todo List */}
         <TodoList 
@@ -92,6 +110,19 @@ function App() {
           isLoading={isLoading}
           onDelete={handleDeleteTodo}
         />
+
+        {/* Floating Add Button */}
+        {!showForm && (
+          <button
+            onClick={() => setShowForm(true)}
+            className="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 shadow-lg hover:shadow-xl transition-all duration-200 z-50"
+            aria-label="Add new task"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+          </button>
+        )}
       </div>
     </div>
   );

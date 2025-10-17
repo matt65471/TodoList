@@ -4,9 +4,10 @@ import type { CreateTodoRequest } from '../types/todo';
 interface TodoFormProps {
   onSubmit: (todo: CreateTodoRequest) => void;
   isLoading?: boolean;
+  onCancel?: () => void;
 }
 
-export default function TodoForm({ onSubmit, isLoading }: TodoFormProps) {
+export default function TodoForm({ onSubmit, isLoading, onCancel }: TodoFormProps) {
   const [nameTask, setNameTask] = useState('');
   const [importanceValue, setImportanceValue] = useState<number>(3);
   const [taskGroup, setTaskGroup] = useState('');
@@ -36,7 +37,7 @@ export default function TodoForm({ onSubmit, isLoading }: TodoFormProps) {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+    <div className="p-6">
       <h2 className="text-2xl font-bold text-gray-800 mb-4">Create New Task</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
@@ -105,13 +106,23 @@ export default function TodoForm({ onSubmit, isLoading }: TodoFormProps) {
           </div>
         </div>
 
-        <button
-          type="submit"
-          disabled={isLoading || !nameTask.trim()}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
-        >
-          {isLoading ? 'Creating...' : 'Add Task'}
-        </button>
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={onCancel}
+            disabled={isLoading}
+            className="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={isLoading || !nameTask.trim()}
+            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
+          >
+            {isLoading ? 'Creating...' : 'Add Task'}
+          </button>
+        </div>
       </form>
     </div>
   );
