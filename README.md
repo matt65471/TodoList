@@ -3,6 +3,10 @@
 A full-stack To-Do list application built with React, TypeScript, Node.js, Express, and MongoDB.
 I designed this project to create a simple, calming To-Do experience that reduces overwhelm rather than adds to it. With so many responsibilities in daily life, traditional task lists can sometimes feel daunting. My goal was to design a To-Do app that brings clarity and perspective—helping users feel that their tasks are manageable, so they can spend more time taking action and less time feeling stressed!
 
+## Current website example
+
+![alt text](Example.png)
+
 ## 🚀 Live Demo
 
 **Frontend**: http://localhost:5174  
