@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import TodoForm from './components/TodoForm';
 import TodoList from './components/TodoList';
 import type { Todo, CreateTodoRequest } from './types/todo';
@@ -11,11 +11,30 @@ function App() {
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [showFabMenu, setShowFabMenu] = useState(false);
+  const fabRef = useRef<HTMLDivElement>(null);
 
   // Fetch todos on mount
   useEffect(() => {
     fetchTodos();
   }, []);
+
+  // Close FAB menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (fabRef.current && !fabRef.current.contains(event.target as Node)) {
+        setShowFabMenu(false);
+      }
+    };
+
+    if (showFabMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showFabMenu]);
 
   const fetchTodos = async () => {
     try {
@@ -58,6 +77,15 @@ function App() {
       setError('Failed to delete task. Please try again.');
       console.error('Error deleting todo:', err);
     }
+  };
+
+  const handleFabMenuToggle = () => {
+    setShowFabMenu(!showFabMenu);
+  };
+
+  const handleAddTask = () => {
+    setShowForm(true);
+    setShowFabMenu(false);
   };
 
   return (
@@ -111,17 +139,35 @@ function App() {
           onDelete={handleDeleteTodo}
         />
 
-        {/* Floating Add Button */}
+        {/* Expandable Floating Action Button */}
         {!showForm && (
-          <button
-            onClick={() => setShowForm(true)}
-            className="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 shadow-lg hover:shadow-xl transition-all duration-200 z-50"
-            aria-label="Add new task"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
-          </button>
+          <div ref={fabRef} className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+            {/* Action Menu Items */}
+            <div className={`flex items-center gap-3 mb-4 transition-all duration-300 ${showFabMenu ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
+              <button
+                onClick={handleAddTask}
+                className="flex items-center gap-3 bg-white text-gray-700 px-4 py-3 rounded-full shadow-lg hover:shadow-xl hover:bg-gray-50 transition-all duration-200 whitespace-nowrap"
+              >
+                <span className="text-sm font-medium">Add Task</span>
+                <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                </div>
+              </button>
+            </div>
+
+            {/* Main FAB Button */}
+            <button
+              onClick={handleFabMenuToggle}
+              className={`bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 shadow-lg hover:shadow-xl transition-all duration-200 ${showFabMenu ? 'rotate-45' : 'rotate-0'}`}
+              aria-label="Toggle action menu"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+            </button>
+          </div>
         )}
       </div>
     </div>
