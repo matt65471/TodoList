@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { Todo } from '../types/todo';
 
 interface TodoListProps {
@@ -7,6 +8,7 @@ interface TodoListProps {
 }
 
 export default function TodoList({ todos, isLoading, onDelete }: TodoListProps) {
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
   const formatDate = (dateString?: string) => {
     if (!dateString) return null;
     const date = new Date(dateString);
@@ -30,6 +32,17 @@ export default function TodoList({ todos, isLoading, onDelete }: TodoListProps) 
     if (importance === 3) return 'Medium';
     return 'Low';
   };
+
+  const toggleSortOrder = () => {
+    setSortOrder(prev => prev === 'newest' ? 'oldest' : 'newest');
+  };
+
+  const sortedTodos = [...todos].sort((a, b) => {
+    const dateA = new Date(a.createdAt || 0).getTime();
+    const dateB = new Date(b.createdAt || 0).getTime();
+    
+    return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+  });
 
   if (isLoading) {
     return (
@@ -65,12 +78,30 @@ export default function TodoList({ todos, isLoading, onDelete }: TodoListProps) 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
       <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
-        <h2 className="text-2xl font-bold text-gray-800">Your Tasks</h2>
-        <p className="text-sm text-gray-600 mt-1">{todos.length} {todos.length === 1 ? 'task' : 'tasks'} in total</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-800">Your Tasks</h2>
+            <p className="text-sm text-gray-600 mt-1">{todos.length} {todos.length === 1 ? 'task' : 'tasks'} in total</p>
+          </div>
+          <button
+            onClick={toggleSortOrder}
+            className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition duration-150"
+            title={`Sort by ${sortOrder === 'newest' ? 'oldest first' : 'newest first'}`}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {sortOrder === 'newest' ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4" />
+              )}
+            </svg>
+            {sortOrder === 'newest' ? 'Newest First' : 'Oldest First'}
+          </button>
+        </div>
       </div>
       
       <div className="divide-y divide-gray-200">
-        {todos.map((todo) => (
+        {sortedTodos.map((todo) => (
           <div
             key={todo._id}
             className="p-6 hover:bg-gray-50 transition duration-150"
