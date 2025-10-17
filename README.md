@@ -181,6 +181,7 @@ npm run build
 - ✅ **Scalable Structure**: Easy to extend and maintain
 
 ## Future Features
+- [ ] Add some other basic features, like adding specific times, showing tasks based off of a time period, etc (mostly sorting tasks).
 - [ ] Graphs to show how busy your week/month is
 - [ ] A break section to just chill from your To-Do list and the stressful world out there.
 - [ ] Stress tracker where user can log current stress and how much stress a certain task causes them
