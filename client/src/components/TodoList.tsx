@@ -5,9 +5,10 @@ interface TodoListProps {
   todos: Todo[];
   isLoading?: boolean;
   onDelete?: (id: string) => void;
+  onToggleCompletion?: (id: string) => void;
 }
 
-export default function TodoList({ todos, isLoading, onDelete }: TodoListProps) {
+export default function TodoList({ todos, isLoading, onDelete, onToggleCompletion }: TodoListProps) {
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
   const formatDate = (dateString?: string) => {
     if (!dateString) return null;
@@ -107,10 +108,32 @@ export default function TodoList({ todos, isLoading, onDelete }: TodoListProps) 
             className="p-6 hover:bg-gray-50 transition duration-150"
           >
             <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  {todo.nameTask}
-                </h3>
+              <div className="flex items-start gap-4 flex-1">
+                {/* Completion Circle */}
+                <button
+                  onClick={() => onToggleCompletion?.(todo._id)}
+                  className={`mt-1 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200 hover:scale-110 ${
+                    todo.isCompleted 
+                      ? 'bg-green-500 border-green-500 text-white' 
+                      : 'border-gray-300 hover:border-green-400'
+                  }`}
+                  title={todo.isCompleted ? 'Mark as incomplete' : 'Mark as complete'}
+                >
+                  {todo.isCompleted && (
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                </button>
+
+                <div className="flex-1">
+                  <h3 className={`text-lg font-semibold mb-2 transition-all duration-200 ${
+                    todo.isCompleted 
+                      ? 'text-gray-500 line-through' 
+                      : 'text-gray-900'
+                  }`}>
+                    {todo.nameTask}
+                  </h3>
                 
                 <div className="flex flex-wrap gap-2 mb-3">
                   <span className={`px-3 py-1 rounded-full text-xs font-medium ${getImportanceColor(todo.importanceValue)}`}>
@@ -142,6 +165,7 @@ export default function TodoList({ todos, isLoading, onDelete }: TodoListProps) 
                       <span>Created: {formatDate(todo.createdAt)}</span>
                     </div>
                   )}
+                </div>
                 </div>
               </div>
 

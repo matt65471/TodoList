@@ -5,6 +5,7 @@ export interface IToDoBase {
   importanceValue?: number;
   taskGroup?: string;
   dueDate?: Date;
+  isCompleted?: boolean;
 }
 
 export interface IToDoDoc extends IToDoBase, Document {
@@ -16,6 +17,7 @@ const todoSchema = new Schema<IToDoDoc>({
   importanceValue: Number,
   taskGroup: String,
   dueDate: Date,
+  isCompleted: { type: Boolean, default: false },
 }, { timestamps: true });
 
 export const ToDo = mongoose.model<IToDoDoc>("IndividualTask", todoSchema);

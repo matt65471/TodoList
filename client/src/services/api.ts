@@ -35,4 +35,10 @@ export const todoApi = {
     const response = await api.patch(`/todos/${id}`, updates);
     return response.data.data;
   },
+
+  // Toggle completion status of a todo
+  toggleCompletion: async (id: string): Promise<Todo> => {
+    const response = await api.patch(`/todos/${id}/toggle`);
+    return response.data.data;
+  },
 };

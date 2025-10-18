@@ -105,6 +105,38 @@ export async function updateToDo(req: Request, res: Response): Promise<void>{
   }
 }
 
+// Toggle completion status of a todo
+export async function toggleTodoCompletion(req: Request, res: Response): Promise<void> {
+  try {
+    const { id } = req.params;
+
+    if (!Types.ObjectId.isValid(id)) {
+      res.status(400).json({ success: false, message: "Invalid todo id" });
+      return;
+    }
+
+    const todo = await ToDo.findById(id);
+    if (!todo) {
+      res.status(404).json({ success: false, message: "Task not found" });
+      return;
+    }
+
+    todo.isCompleted = !todo.isCompleted;
+    await todo.save();
+
+    res.status(200).json({ 
+      success: true, 
+      data: todo,
+      message: `Task ${todo.isCompleted ? 'completed' : 'uncompleted'}`
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: `Failed to toggle completion for todo with id ${req.params.id}`
+    });
+  }
+}
+
 // Delete an existing ToDo
 export async function deleteToDo(req: Request, res: Response): Promise<void>{
   try{

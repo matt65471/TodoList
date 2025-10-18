@@ -4,6 +4,7 @@ export interface Todo {
   importanceValue?: number;
   taskGroup?: string;
   dueDate?: string;
+  isCompleted?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }

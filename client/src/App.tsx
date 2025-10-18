@@ -79,6 +79,20 @@ function App() {
     }
   };
 
+  const handleToggleCompletion = async (id: string) => {
+    try {
+      setError(null);
+      const updatedTodo = await todoApi.toggleCompletion(id);
+      // Update the todo in local state
+      setTodos(todos.map(todo => 
+        todo._id === id ? updatedTodo : todo
+      ));
+    } catch (err) {
+      setError('Failed to update task completion. Please try again.');
+      console.error('Error toggling completion:', err);
+    }
+  };
+
   const handleFabMenuToggle = () => {
     setShowFabMenu(!showFabMenu);
   };
@@ -137,6 +151,7 @@ function App() {
           todos={todos} 
           isLoading={isLoading}
           onDelete={handleDeleteTodo}
+          onToggleCompletion={handleToggleCompletion}
         />
 
         {/* Expandable Floating Action Button */}
