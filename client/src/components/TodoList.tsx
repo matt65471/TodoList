@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { Todo } from '../types/todo';
 
 interface TodoListProps {
@@ -8,8 +8,33 @@ interface TodoListProps {
   onToggleCompletion?: (id: string) => void;
 }
 
+type SortOption = 'newest' | 'oldest' | 'dueDateAsc' | 'dueDateDesc' | 'importanceHigh' | 'importanceLow';
+
 export default function TodoList({ todos, isLoading, onDelete, onToggleCompletion }: TodoListProps) {
-  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
+  const [sortOptions, setSortOptions] = useState<SortOption[]>(['dueDateAsc']);
+  const [tempSortOptions, setTempSortOptions] = useState<SortOption[]>(['dueDateAsc']);
+  const [showSortDropdown, setShowSortDropdown] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowSortDropdown(false);
+        // Reset temp options to current applied options
+        setTempSortOptions([...sortOptions]);
+      }
+    };
+
+    if (showSortDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showSortDropdown, sortOptions]);
+
   const formatDate = (dateString?: string) => {
     if (!dateString) return null;
     const date = new Date(dateString);
@@ -34,15 +59,80 @@ export default function TodoList({ todos, isLoading, onDelete, onToggleCompletio
     return 'Low';
   };
 
-  const toggleSortOrder = () => {
-    setSortOrder(prev => prev === 'newest' ? 'oldest' : 'newest');
+  const getSortLabel = (sortOption: SortOption) => {
+    switch (sortOption) {
+      case 'newest': return 'Newest First';
+      case 'oldest': return 'Oldest First';
+      case 'dueDateAsc': return 'Due Date (Earliest)';
+      case 'dueDateDesc': return 'Due Date (Latest)';
+      case 'importanceHigh': return 'Importance (High to Low)';
+      case 'importanceLow': return 'Importance (Low to High)';
+      default: return 'Newest First';
+    }
+  };
+
+  const toggleTempSortOption = (option: SortOption) => {
+    setTempSortOptions(prev => {
+      if (prev.includes(option)) {
+        // Remove the option if it's already selected
+        const newOptions = prev.filter(opt => opt !== option);
+        // If no options left, default to dueDateAsc
+        return newOptions.length > 0 ? newOptions : ['dueDateAsc'];
+      } else {
+        // Add the option
+        return [...prev, option];
+      }
+    });
+  };
+
+  const applySortOptions = () => {
+    setSortOptions([...tempSortOptions]);
+    setShowSortDropdown(false);
+  };
+
+  const cancelSortOptions = () => {
+    setTempSortOptions([...sortOptions]);
+    setShowSortDropdown(false);
   };
 
   const sortedTodos = [...todos].sort((a, b) => {
-    const dateA = new Date(a.createdAt || 0).getTime();
-    const dateB = new Date(b.createdAt || 0).getTime();
+    // Apply multiple sort criteria in order
+    for (const sortOption of sortOptions) {
+      let result = 0;
+      
+      switch (sortOption) {
+        case 'newest':
+          result = new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+          break;
+        case 'oldest':
+          result = new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime();
+          break;
+        case 'dueDateAsc':
+          const dateA = new Date(a.dueDate || '9999-12-31').getTime();
+          const dateB = new Date(b.dueDate || '9999-12-31').getTime();
+          result = dateA - dateB;
+          break;
+        case 'dueDateDesc':
+          const dateADesc = new Date(a.dueDate || '1900-01-01').getTime();
+          const dateBDesc = new Date(b.dueDate || '1900-01-01').getTime();
+          result = dateBDesc - dateADesc;
+          break;
+        case 'importanceHigh':
+          result = (b.importanceValue || 0) - (a.importanceValue || 0);
+          break;
+        case 'importanceLow':
+          result = (a.importanceValue || 0) - (b.importanceValue || 0);
+          break;
+      }
+      
+      // If this sort criteria gives a definitive result, use it
+      if (result !== 0) {
+        return result;
+      }
+      // Otherwise, continue to the next sort criteria
+    }
     
-    return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+    return 0;
   });
 
   if (isLoading) {
@@ -84,20 +174,57 @@ export default function TodoList({ todos, isLoading, onDelete, onToggleCompletio
             <h2 className="text-2xl font-bold text-gray-800">Your Tasks</h2>
             <p className="text-sm text-gray-600 mt-1">{todos.length} {todos.length === 1 ? 'task' : 'tasks'} in total</p>
           </div>
-          <button
-            onClick={toggleSortOrder}
-            className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition duration-150"
-            title={`Sort by ${sortOrder === 'newest' ? 'oldest first' : 'newest first'}`}
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              {sortOrder === 'newest' ? (
+          <div className="relative" ref={dropdownRef}>
+            <button
+              onClick={() => setShowSortDropdown(!showSortDropdown)}
+              className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition duration-150"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4" />
-              )}
-            </svg>
-            {sortOrder === 'newest' ? 'Newest First' : 'Oldest First'}
-          </button>
+              </svg>
+              Sort
+            </button>
+
+            {/* Dropdown Menu */}
+            {showSortDropdown && (
+              <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
+                <div className="py-2">
+                  {(['newest', 'oldest', 'dueDateAsc', 'dueDateDesc', 'importanceHigh', 'importanceLow'] as SortOption[]).map((option) => (
+                    <button
+                      key={option}
+                      onClick={() => toggleTempSortOption(option)}
+                      className={`w-full px-4 py-2 text-sm text-left hover:bg-gray-50 transition duration-150 flex items-center justify-between ${
+                        tempSortOptions.includes(option) ? 'bg-blue-50 text-blue-700' : 'text-gray-700'
+                      }`}
+                    >
+                      <span>{getSortLabel(option)}</span>
+                      {tempSortOptions.includes(option) && (
+                        <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                    </button>
+                  ))}
+                </div>
+                
+                {/* Apply/Cancel Buttons */}
+                <div className="border-t border-gray-200 px-3 py-2 flex gap-2">
+                  <button
+                    onClick={applySortOptions}
+                    className="flex-1 px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition duration-150"
+                  >
+                    Apply
+                  </button>
+                  <button
+                    onClick={cancelSortOptions}
+                    className="flex-1 px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition duration-150"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
       
